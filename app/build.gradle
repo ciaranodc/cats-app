@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace 'com.lorempicsum.photos'
+    namespace 'com.codc.cats'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.lorempicsum.photos"
+        applicationId "com.codc.cats"
         minSdk 24
         targetSdk 33
         versionCode 1
