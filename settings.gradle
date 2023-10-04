@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "lorempicsumphotos"
+rootProject.name = "cats-app"
 include ':app'
