@@ -1,6 +1,6 @@
 package com.codc.cats.data.di
 
-import com.codc.cats.data.api.ImageApiService
+import com.codc.cats.data.api.CatApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -11,12 +11,9 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class NetworkModule {
 
-//    @Binds
-//    fun provideImageRepository(impl: RemoteImageRepository): ImageRepository
-
     @Singleton
     @Provides
-    fun provideImagesApiService(): ImageApiService {
-        return ImageApiService.create()
+    fun provideImagesApiService(): CatApiService {
+        return CatApiService.create()
     }
 }

@@ -2,50 +2,35 @@ package com.codc.cats.ui.images
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.codc.cats.data.source.local.database.entity.AuthorEntity
+import androidx.paging.map
+import com.codc.cats.data.mappers.toDomainModel
+import com.codc.cats.data.model.Image
 import com.codc.cats.data.source.repository.ImageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class ImagesViewModel @Inject constructor(
     private val imageRepository: ImageRepository
 ) : ViewModel() {
 
-    val selectedAuthor = imageRepository
-        .selectedAuthor
-        .map {
-            it?.authorName
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = null
-        )
+    var images = retrieveImages()
 
-    val images = selectedAuthor.flatMapLatest {
-        imageRepository.getImages(it).cachedIn(viewModelScope)
+    fun retrieveImages(): Flow<PagingData<Image>> {
+        Timber.d("retrieveImages()")
+        return imageRepository.getImages().map { pagingData ->
+            pagingData.map { imageEntity ->
+                imageEntity.toDomainModel()
+            }
+        }.cachedIn(viewModelScope)
     }
 
-    fun updateSelectedAuthor(author: AuthorEntity?) {
-        viewModelScope.launch {
-            imageRepository.updateAuthorSelection(author)
-        }
+    fun refreshImages() {
+        images = retrieveImages()
     }
-
-    val authors = imageRepository
-        .authors
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
 }

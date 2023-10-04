@@ -8,18 +8,18 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-interface ImageApiService {
-    @GET("list")
+interface CatApiService {
+    @GET("search")
     suspend fun getImagesList(
         @Query("page") page: Int,
         @Query("limit") limit: Int,
     ): List<ImageEntity>
 
     companion object {
-        private const val BASE_URL = "https://picsum.photos/v2/"
+        private const val BASE_URL = "https://api.thecatapi.com/v1/images/"
 
-        fun create(): ImageApiService {
-            val imageApiService: ImageApiService by lazy {
+        fun create(): CatApiService {
+            val catApiService: CatApiService by lazy {
                 val interceptor = HttpLoggingInterceptor()
                 interceptor.level = HttpLoggingInterceptor.Level.BODY
                 val client = OkHttpClient().newBuilder().addInterceptor(interceptor).build()
@@ -29,10 +29,10 @@ interface ImageApiService {
                     .addConverterFactory(GsonConverterFactory.create())
                     .client(client)
                     .build()
-                    .create(ImageApiService::class.java)
+                    .create(CatApiService::class.java)
             }
 
-            return imageApiService
+            return catApiService
         }
     }
 }

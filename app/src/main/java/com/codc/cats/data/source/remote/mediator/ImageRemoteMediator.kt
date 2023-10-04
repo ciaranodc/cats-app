@@ -1,14 +1,12 @@
 package com.codc.cats.data.source.remote.mediator
 
-import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
-import com.codc.cats.data.api.ImageApiService
-import com.codc.cats.data.source.local.database.ImageDatabase
-import com.codc.cats.data.source.local.database.entity.AuthorEntity
+import com.codc.cats.data.api.CatApiService
+import com.codc.cats.data.source.local.database.AppDatabase
 import com.codc.cats.data.source.local.database.entity.ImageEntity
 import com.codc.cats.data.source.local.database.entity.RemoteKeysEntity
 import retrofit2.HttpException
@@ -20,8 +18,8 @@ private const val PICSUM_STARTING_PAGE_INDEX = 1
 @OptIn(ExperimentalPagingApi::class)
 class ImageRemoteMediator(
     private val query: String?,
-    private val imageDatabase: ImageDatabase,
-    private val networkService: ImageApiService
+    private val appDatabase: AppDatabase,
+    private val networkService: CatApiService
 ) : RemoteMediator<Int, ImageEntity>() {
 
     override suspend fun initialize(): InitializeAction {
@@ -59,7 +57,7 @@ class ImageRemoteMediator(
         }
 
         try {
-            // If fetching images by author then don't worry about pagination
+            // If fetching images by query (e.g. cat breed) then don't worry about pagination
             if (query != null) {
                 return MediatorResult.Success(
                     endOfPaginationReached = true
@@ -70,14 +68,14 @@ class ImageRemoteMediator(
                 page = currentPage,
                 limit = state.config.pageSize
             )
-            Log.d("ImageRemoteMediator", "images.size ${images.size}")
+
             val endOfPaginationReached = images.isEmpty()
 
-            imageDatabase.withTransaction {
+            appDatabase.withTransaction {
                 // clear all tables in the database
                 if (loadType == LoadType.REFRESH) {
-                    imageDatabase.remoteKeysDao().clearRemoteKeys()
-                    imageDatabase.imageDao().clearAll()
+                    appDatabase.remoteKeysDao().clearRemoteKeys()
+                    appDatabase.imageDao().clearAll()
                 }
                 val prevKey =
                     if (currentPage == PICSUM_STARTING_PAGE_INDEX) null else currentPage - 1
@@ -86,20 +84,8 @@ class ImageRemoteMediator(
                     RemoteKeysEntity(repoId = it.id, prevKey = prevKey, nextKey = nextKey)
                 }
 
-                imageDatabase.remoteKeysDao().insertAll(keys)
-                imageDatabase.imageDao().upsertAll(images)
-
-                val currentSelectedAuthor = imageDatabase.authorDao().getCurrentSelectedAuthor()
-                val authorList = currentSelectedAuthor?.let {
-                    images.map {
-                        AuthorEntity(
-                            authorName = it.author,
-                            isSelected = currentSelectedAuthor.authorName == it.author
-                        )
-                    }.distinct()
-                } ?: images.map { AuthorEntity(authorName = it.author) }.distinct()
-
-                imageDatabase.authorDao().upsertAuthors(authorList)
+                appDatabase.remoteKeysDao().insertAll(keys)
+                appDatabase.imageDao().upsertAll(images)
             }
             return MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
         } catch (exception: IOException) {
@@ -115,7 +101,7 @@ class ImageRemoteMediator(
         return state.pages.lastOrNull { it.data.isNotEmpty() }?.data?.lastOrNull()
             ?.let { repo ->
                 // Get the remote keys of the last item retrieved
-                imageDatabase.remoteKeysDao().remoteKeysRepoId(repo.id)
+                appDatabase.remoteKeysDao().remoteKeysRepoId(repo.id)
             }
     }
 
@@ -125,7 +111,7 @@ class ImageRemoteMediator(
         return state.pages.firstOrNull { it.data.isNotEmpty() }?.data?.firstOrNull()
             ?.let { repo ->
                 // Get the remote keys of the first items retrieved
-                imageDatabase.remoteKeysDao().remoteKeysRepoId(repo.id)
+                appDatabase.remoteKeysDao().remoteKeysRepoId(repo.id)
             }
     }
 
@@ -136,7 +122,7 @@ class ImageRemoteMediator(
         // Get the item closest to the anchor position
         return state.anchorPosition?.let { position ->
             state.closestItemToPosition(position)?.id?.let { repoId ->
-                imageDatabase.remoteKeysDao().remoteKeysRepoId(repoId)
+                appDatabase.remoteKeysDao().remoteKeysRepoId(repoId)
             }
         }
     }

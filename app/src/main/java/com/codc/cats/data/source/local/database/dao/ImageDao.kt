@@ -11,9 +11,6 @@ interface ImageDao {
     @Query("SELECT * FROM image")
     fun getAllImages(): PagingSource<Int, ImageEntity>
 
-    @Query("SELECT * FROM image WHERE author IS :author")
-    fun getImagesByAuthor(author: String): PagingSource<Int, ImageEntity>
-
     /**
      * Insert images if they don't exist or update them if they do
      */

@@ -10,15 +10,10 @@ data class ImageEntity(
     @PrimaryKey
     @ColumnInfo("id")
     val id: String,
-    @ColumnInfo("author")
-    val author: String,
+    @ColumnInfo("url")
+    val url: String,
     @ColumnInfo("width")
     val width: Int,
     @ColumnInfo("height")
-    val height: Int,
-    @ColumnInfo("url")
-    val url: String,
-    @SerializedName("download_url")
-    @ColumnInfo("download_url")
-    val downloadUrl: String
+    val height: Int
 )
