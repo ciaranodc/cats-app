@@ -1,14 +1,18 @@
 package com.codc.cats.data.api
 
+import com.codc.cats.BuildConfig
 import com.codc.cats.data.source.local.database.entity.ImageEntity
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Headers
 import retrofit2.http.Query
 
 interface CatApiService {
+
+    @Headers("x-api-key: ${BuildConfig.CAT_API_KEY}")
     @GET("search")
     suspend fun getImagesList(
         @Query("page") page: Int,
