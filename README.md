@@ -7,6 +7,6 @@ Used in this project:
 *   A single-activity MVVM architecture, using **[Navigation Compose](https://developer.android.com/jetpack/compose/navigation)**.
 *   A presentation layer that contains a Compose screen (View) and a **ViewModel**.
 *   Reactive UIs using **[Flow](https://developer.android.com/kotlin/flow)** and **[coroutines](https://kotlinlang.org/docs/coroutines-overview.html)** for asynchronous operations.
-*   A pager which uses a remote mediator to load data from a remote data source and caches it in a local Room database.
+*   A pager which uses a remote mediator to load data from a remote data source (https://thecatapi.com/) and caches it in a local Room database.
 *   Dependency injection using [Hilt](https://developer.android.com/training/dependency-injection/hilt-android).
 

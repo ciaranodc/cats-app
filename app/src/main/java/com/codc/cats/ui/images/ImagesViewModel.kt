@@ -11,7 +11,6 @@ import com.codc.cats.data.source.repository.ImageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,18 +18,19 @@ class ImagesViewModel @Inject constructor(
     private val imageRepository: ImageRepository
 ) : ViewModel() {
 
+    private var firstTimeLoad = true
+
     var images = retrieveImages()
 
     fun retrieveImages(): Flow<PagingData<Image>> {
-        Timber.d("retrieveImages()")
-        return imageRepository.getImages().map { pagingData ->
-            pagingData.map { imageEntity ->
-                imageEntity.toDomainModel()
-            }
-        }.cachedIn(viewModelScope)
-    }
-
-    fun refreshImages() {
-        images = retrieveImages()
+        if (firstTimeLoad) {
+            firstTimeLoad = false
+            return imageRepository.getImages().map { pagingData ->
+                pagingData.map { imageEntity ->
+                    imageEntity.toDomainModel()
+                }
+            }.cachedIn(viewModelScope)
+        }
+        return images
     }
 }
