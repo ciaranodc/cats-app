@@ -10,6 +10,9 @@ android {
     namespace 'com.codc.cats'
     compileSdk 33
 
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
     defaultConfig {
         applicationId "com.codc.cats"
         minSdk 24
@@ -21,6 +24,8 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+
+        buildConfigField("String", "CAT_API_KEY", properties.getProperty("CAT_API_KEY"))
     }
 
     buildTypes {
