@@ -8,12 +8,12 @@ import androidx.room.withTransaction
 import com.codc.cats.data.api.CatApiService
 import com.codc.cats.data.source.local.database.AppDatabase
 import com.codc.cats.data.source.local.database.entity.ImageEntity
-import com.codc.cats.data.source.local.database.entity.RemoteKeysEntity
+import com.codc.cats.data.source.local.database.entity.RemoteKeyEntity
 import retrofit2.HttpException
 import java.io.IOException
 
-// The Cat API is 1 based: https://developer.github.com/v3/#pagination
-private const val PICSUM_STARTING_PAGE_INDEX = 1
+// The Cat API pages start at 0: https://developers.thecatapi.com
+private const val CAT_API_STARTING_PAGE_INDEX = 0
 
 @OptIn(ExperimentalPagingApi::class)
 class ImageRemoteMediator(
@@ -38,7 +38,7 @@ class ImageRemoteMediator(
         val currentPage = when (loadType) {
             LoadType.REFRESH -> {
                 val remoteKeys = getRemoteKeyClosestToCurrentPosition(state)
-                remoteKeys?.nextKey?.minus(1) ?: PICSUM_STARTING_PAGE_INDEX
+                remoteKeys?.nextKey?.minus(1) ?: CAT_API_STARTING_PAGE_INDEX
             }
 
             LoadType.PREPEND -> {
@@ -78,10 +78,10 @@ class ImageRemoteMediator(
                     appDatabase.imageDao().clearAll()
                 }
                 val prevKey =
-                    if (currentPage == PICSUM_STARTING_PAGE_INDEX) null else currentPage - 1
+                    if (currentPage == CAT_API_STARTING_PAGE_INDEX) null else currentPage - 1
                 val nextKey = if (endOfPaginationReached) null else currentPage + 1
                 val keys = images.map {
-                    RemoteKeysEntity(repoId = it.id, prevKey = prevKey, nextKey = nextKey)
+                    RemoteKeyEntity(imageId = it.id, prevKey = prevKey, nextKey = nextKey)
                 }
 
                 appDatabase.remoteKeysDao().insertAll(keys)
@@ -95,34 +95,34 @@ class ImageRemoteMediator(
         }
     }
 
-    private suspend fun getRemoteKeyForLastItem(state: PagingState<Int, ImageEntity>): RemoteKeysEntity? {
+    private suspend fun getRemoteKeyForLastItem(state: PagingState<Int, ImageEntity>): RemoteKeyEntity? {
         // Get the last page that was retrieved, that contained items.
         // From that last page, get the last item
         return state.pages.lastOrNull { it.data.isNotEmpty() }?.data?.lastOrNull()
-            ?.let { repo ->
+            ?.let { imageEntity ->
                 // Get the remote keys of the last item retrieved
-                appDatabase.remoteKeysDao().remoteKeysRepoId(repo.id)
+                appDatabase.remoteKeysDao().remoteKeyByImageId(imageEntity.id)
             }
     }
 
-    private suspend fun getRemoteKeyForFirstItem(state: PagingState<Int, ImageEntity>): RemoteKeysEntity? {
+    private suspend fun getRemoteKeyForFirstItem(state: PagingState<Int, ImageEntity>): RemoteKeyEntity? {
         // Get the first page that was retrieved, that contained items.
         // From that first page, get the first item
         return state.pages.firstOrNull { it.data.isNotEmpty() }?.data?.firstOrNull()
-            ?.let { repo ->
+            ?.let { imageEntity ->
                 // Get the remote keys of the first items retrieved
-                appDatabase.remoteKeysDao().remoteKeysRepoId(repo.id)
+                appDatabase.remoteKeysDao().remoteKeyByImageId(imageEntity.id)
             }
     }
 
     private suspend fun getRemoteKeyClosestToCurrentPosition(
         state: PagingState<Int, ImageEntity>
-    ): RemoteKeysEntity? {
+    ): RemoteKeyEntity? {
         // The paging library is trying to load data after the anchor position
         // Get the item closest to the anchor position
         return state.anchorPosition?.let { position ->
-            state.closestItemToPosition(position)?.id?.let { repoId ->
-                appDatabase.remoteKeysDao().remoteKeysRepoId(repoId)
+            state.closestItemToPosition(position)?.id?.let { imageId ->
+                appDatabase.remoteKeysDao().remoteKeyByImageId(imageId)
             }
         }
     }

@@ -10,3 +10,10 @@ Used in this project:
 *   A pager which uses a remote mediator to load data from a remote data source (https://thecatapi.com/) and caches it in a local Room database.
 *   Dependency injection using [Hilt](https://developer.android.com/training/dependency-injection/hilt-android).
 
+## Screenshots:
+
+<img src="https://i.ibb.co/jH5SYZG/cats-screenshot-1.jpg" width="300">
+
+<img src="https://i.ibb.co/d4fcrvd/cats-screenshot-2.jpg" width="300">
+
+<img src="https://i.ibb.co/NZWR011/cats-screenshot-3.jpg" width="300">
