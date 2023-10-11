@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.codc.cats.data.source.local.database.AppDatabase
 import com.codc.cats.data.source.local.database.dao.ImageDao
+import com.codc.cats.data.source.local.database.migrations.MIGRATION_1_2
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,11 +19,9 @@ class DatabaseModule {
     @Provides
     @Singleton
     fun provideAppDatabase(@ApplicationContext appContext: Context): AppDatabase {
-        return Room.databaseBuilder(
-            appContext,
-            AppDatabase::class.java,
-            "image-database"
-        ).build()
+        return Room.databaseBuilder(appContext, AppDatabase::class.java, "image-database")
+            .addMigrations(MIGRATION_1_2)
+            .build()
     }
 
     @Provides

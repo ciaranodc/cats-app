@@ -37,21 +37,21 @@ class ImageRemoteMediator(
 
         val currentPage = when (loadType) {
             LoadType.REFRESH -> {
-                val remoteKeys = getRemoteKeyClosestToCurrentPosition(state)
-                remoteKeys?.nextKey?.minus(1) ?: CAT_API_STARTING_PAGE_INDEX
+                val remoteKey = getRemoteKeyClosestToCurrentPosition(state)
+                remoteKey?.nextKey?.minus(1) ?: CAT_API_STARTING_PAGE_INDEX
             }
 
             LoadType.PREPEND -> {
-                val remoteKeys = getRemoteKeyForFirstItem(state)
-                val prevKey = remoteKeys?.prevKey
-                    ?: return MediatorResult.Success(endOfPaginationReached = remoteKeys != null)
+                val remoteKey = getRemoteKeyForFirstItem(state)
+                val prevKey = remoteKey?.prevKey
+                    ?: return MediatorResult.Success(endOfPaginationReached = remoteKey != null)
                 prevKey
             }
 
             LoadType.APPEND -> {
-                val remoteKeys = getRemoteKeyForLastItem(state)
-                val nextKey = remoteKeys?.nextKey
-                    ?: return MediatorResult.Success(endOfPaginationReached = remoteKeys != null)
+                val remoteKey = getRemoteKeyForLastItem(state)
+                val nextKey = remoteKey?.nextKey
+                    ?: return MediatorResult.Success(endOfPaginationReached = remoteKey != null)
                 nextKey
             }
         }
@@ -74,7 +74,7 @@ class ImageRemoteMediator(
             appDatabase.withTransaction {
                 // clear all tables in the database
                 if (loadType == LoadType.REFRESH) {
-                    appDatabase.remoteKeysDao().clearRemoteKeys()
+                    appDatabase.remoteKeyDao().clearRemoteKeys()
                     appDatabase.imageDao().clearAll()
                 }
                 val prevKey =
@@ -84,7 +84,7 @@ class ImageRemoteMediator(
                     RemoteKeyEntity(imageId = it.id, prevKey = prevKey, nextKey = nextKey)
                 }
 
-                appDatabase.remoteKeysDao().insertAll(keys)
+                appDatabase.remoteKeyDao().insertAll(keys)
                 appDatabase.imageDao().upsertAll(images)
             }
             return MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
@@ -101,7 +101,7 @@ class ImageRemoteMediator(
         return state.pages.lastOrNull { it.data.isNotEmpty() }?.data?.lastOrNull()
             ?.let { imageEntity ->
                 // Get the remote keys of the last item retrieved
-                appDatabase.remoteKeysDao().remoteKeyByImageId(imageEntity.id)
+                appDatabase.remoteKeyDao().remoteKeyByImageId(imageEntity.id)
             }
     }
 
@@ -111,7 +111,7 @@ class ImageRemoteMediator(
         return state.pages.firstOrNull { it.data.isNotEmpty() }?.data?.firstOrNull()
             ?.let { imageEntity ->
                 // Get the remote keys of the first items retrieved
-                appDatabase.remoteKeysDao().remoteKeyByImageId(imageEntity.id)
+                appDatabase.remoteKeyDao().remoteKeyByImageId(imageEntity.id)
             }
     }
 
@@ -122,7 +122,7 @@ class ImageRemoteMediator(
         // Get the item closest to the anchor position
         return state.anchorPosition?.let { position ->
             state.closestItemToPosition(position)?.id?.let { imageId ->
-                appDatabase.remoteKeysDao().remoteKeyByImageId(imageId)
+                appDatabase.remoteKeyDao().remoteKeyByImageId(imageId)
             }
         }
     }
