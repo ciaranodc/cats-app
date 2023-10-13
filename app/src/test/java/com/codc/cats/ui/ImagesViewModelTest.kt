@@ -16,15 +16,15 @@ class ImagesViewModelTest {
     private lateinit var repository: ImageRepository
     private lateinit var viewModel: ImagesViewModel
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @get:Rule
+    var coroutinesTestRule = CoroutinesTestRule()
+
     @Before
     fun setup() {
         repository = FakeImageRepository()
         viewModel = ImagesViewModel(repository)
     }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    @get:Rule
-    var coroutinesTestRule = CoroutinesTestRule()
 
     @Test
     fun whenImagesAreLoadedInViewModel_thenCorrectNumberOfImagesIsPresent() {
