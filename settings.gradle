@@ -15,3 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "cats-app"
 include ':app'
+include ':sharedTest'
