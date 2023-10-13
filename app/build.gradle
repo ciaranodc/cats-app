@@ -17,8 +17,8 @@ android {
         applicationId "com.codc.cats"
         minSdk 24
         targetSdk 34
-        versionCode 101
-        versionName "1.0.1"
+        versionCode 104
+        versionName "1.0.4"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
