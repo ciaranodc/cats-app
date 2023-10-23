@@ -18,11 +18,10 @@ class DatabaseModule {
     @Provides
     @Singleton
     fun provideAppDatabase(@ApplicationContext appContext: Context): AppDatabase {
-        return Room.databaseBuilder(
-            appContext,
-            AppDatabase::class.java,
-            "image-database"
-        ).build()
+        return Room.databaseBuilder(appContext, AppDatabase::class.java, "image-database")
+            // random cat images are not important enough to persist between db migrations
+            .fallbackToDestructiveMigration()
+            .build()
     }
 
     @Provides

@@ -3,4 +3,9 @@
     <string name="app_bar_title">Unlimited cats &#128008;</string>
     <string name="cat_image">Cat image</string>
     <string name="no_images_available">No images available</string>
+    <string name="open_context_menu">Open context menu</string>
+    <string name="share">Share</string>
+    <string name="share_icon">Share icon</string>
+    <string name="blur">Blur</string>
+    <string name="blur_icon">Blur icon</string>
 </resources>
