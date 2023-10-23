@@ -72,7 +72,7 @@ fun ImageCard(image: Image) {
             sheetState = sheetState,
         ) {
             // Sheet content
-            ImageOptionsList()
+            OptionsList(image.url)
         }
     }
 }
