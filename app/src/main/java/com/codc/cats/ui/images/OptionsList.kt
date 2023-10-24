@@ -17,17 +17,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.codc.cats.R
+import com.codc.cats.data.common.IMAGE_MANIPULATION_WORK_NAME
 import com.codc.cats.data.utils.shareImage
+import com.codc.cats.data.workers.CleanupWorker
 
 @Composable
-fun OptionsList(imageUrl: String) {
+fun OptionsList(imageUrl: String, hideBottomSheet: () -> Unit) {
+    val context = LocalContext.current
+
     LazyColumn {
 
         // Share image
         item {
-            val context = LocalContext.current
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -53,7 +58,20 @@ fun OptionsList(imageUrl: String) {
                     .fillMaxWidth()
                     .padding(start = 20.dp, bottom = 10.dp)
                     .clickable {
-                        // blur image
+                        // TODO: Blur image. Use a ViewModel to kick this off. The ViewModel should
+                        //  hand the work off to a work manager which should blur the image. Once
+                        //  the blurred image is available in the ViewModel, a pop-up view should
+                        //  appear showing the image.
+                        val workManager = WorkManager.getInstance(context)
+                        val continuation = workManager
+                            .beginUniqueWork(
+                                IMAGE_MANIPULATION_WORK_NAME,
+                                ExistingWorkPolicy.REPLACE,
+                                OneTimeWorkRequest.from(CleanupWorker::class.java)
+                            )
+                        continuation.enqueue()
+
+                        hideBottomSheet()
                     },
                 verticalAlignment = Alignment.CenterVertically
             ) {

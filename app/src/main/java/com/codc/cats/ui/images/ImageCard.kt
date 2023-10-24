@@ -14,6 +14,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -28,6 +29,7 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
 import com.codc.cats.R
 import com.codc.cats.data.model.Image
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @ExperimentalGlideComposeApi
@@ -38,6 +40,7 @@ fun ImageCard(image: Image) {
 
     var contextMenuPhotoId by rememberSaveable { mutableStateOf<String?>(null) }
     val sheetState = rememberModalBottomSheetState()
+    val coroutineScope = rememberCoroutineScope()
 
     Card(
         modifier = Modifier
@@ -72,7 +75,12 @@ fun ImageCard(image: Image) {
             sheetState = sheetState,
         ) {
             // Sheet content
-            OptionsList(image.url)
+            OptionsList(image.url, hideBottomSheet = {
+                coroutineScope.launch {
+                    sheetState.hide()
+                    contextMenuPhotoId = null
+                }
+            })
         }
     }
 }

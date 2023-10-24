@@ -5,12 +5,14 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.toBitmap
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
+import com.codc.cats.data.common.OUTPUT_PATH
+import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -32,8 +34,7 @@ fun shareImage(context: Context, imageUrl: String) {
                     putExtra(Intent.EXTRA_STREAM, fileUri)
                 }
 
-                val shareIntent = Intent.createChooser(sendIntent, null)
-                ContextCompat.startActivity(context, shareIntent, null)
+                startActivity(context, sendIntent, null)
             }
         }
 
@@ -46,7 +47,8 @@ fun saveStaticImageFile(context: Context, resource: Drawable, imageExtension: St
 
     // save bitmap to cache directory
     try {
-        val cachePath = File(context.cacheDir, "images")
+        val cachePath = File(context.cacheDir, OUTPUT_PATH)
+        Timber.d("Cache path set: ${cachePath.absolutePath}")
         cachePath.mkdirs()
         // image is overwritten every time
         val stream =
