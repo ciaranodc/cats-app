@@ -17,6 +17,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
+/** Shares image with another app on the device e.g. Gmail or WhatsApp */
 fun shareImage(context: Context, imageUrl: String) {
     Glide.with(context).load(imageUrl).into(object : CustomTarget<Drawable?>() {
         override fun onResourceReady(
@@ -42,8 +43,9 @@ fun shareImage(context: Context, imageUrl: String) {
     })
 }
 
-fun saveStaticImageFile(context: Context, resource: Drawable, imageExtension: String): Uri? {
-    val bitmap = resource.toBitmap()
+/** Saves a drawable object as an image file to the app's cache directory */
+fun saveStaticImageFile(context: Context, drawable: Drawable, imageExtension: String): Uri? {
+    val bitmap = drawable.toBitmap()
 
     // save bitmap to cache directory
     try {

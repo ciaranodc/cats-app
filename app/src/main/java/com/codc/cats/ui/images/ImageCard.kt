@@ -1,6 +1,7 @@
 package com.codc.cats.ui.images
 
 import android.content.res.Configuration
+import android.os.Build
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -28,6 +30,8 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
 import com.codc.cats.R
+import com.codc.cats.data.common.applyBlur
+import com.codc.cats.data.common.applyGrayScale
 import com.codc.cats.data.model.Image
 import kotlinx.coroutines.launch
 
@@ -42,6 +46,18 @@ fun ImageCard(image: Image) {
     val sheetState = rememberModalBottomSheetState()
     val coroutineScope = rememberCoroutineScope()
 
+    val openContextMenu = stringResource(R.string.open_context_menu)
+    var imageModifier by remember {
+        mutableStateOf(Modifier
+            .fillMaxSize()
+            .combinedClickable(onClick = { }, onLongClick = {
+                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                contextMenuPhotoId = image.id
+            }, onLongClickLabel = openContextMenu
+            )
+        )
+    }
+
     Card(
         modifier = Modifier
             .padding(all = 10.dp)
@@ -51,16 +67,7 @@ fun ImageCard(image: Image) {
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             GlideImage(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .combinedClickable(
-                        onClick = { },
-                        onLongClick = {
-                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                            contextMenuPhotoId = image.id
-                        },
-                        onLongClickLabel = stringResource(R.string.open_context_menu)
-                    ),
+                modifier = imageModifier,
                 model = image.url,
                 contentDescription = stringResource(id = R.string.cat_image),
                 loading = placeholder(R.drawable.empty_image),
@@ -75,10 +82,28 @@ fun ImageCard(image: Image) {
             sheetState = sheetState,
         ) {
             // Sheet content
-            OptionsList(image.url, hideBottomSheet = {
+            OptionsList(imageUrl = image.url, hideBottomSheet = {
                 coroutineScope.launch {
                     sheetState.hide()
                     contextMenuPhotoId = null
+                }
+            }, applyImageFilter = {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    imageModifier = when (it) {
+                        ImageFilter.BLUR -> {
+                            imageModifier.applyBlur()
+                        }
+
+                        ImageFilter.GRAYSCALE -> {
+                            imageModifier.applyGrayScale()
+                        }
+                    }
+                } else {
+                    //todo: use work manager to apply image filter
+                    // Use a ViewModel to kick this off. The ViewModel should
+                    //  hand the work off to a work manager which should blur the image. Once
+                    //  the blurred image is available in the ViewModel, a pop-up view should
+                    //  appear showing the image.
                 }
             })
         }

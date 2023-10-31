@@ -17,21 +17,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequest
-import androidx.work.WorkManager
 import com.codc.cats.R
-import com.codc.cats.data.common.IMAGE_MANIPULATION_WORK_NAME
 import com.codc.cats.data.utils.shareImage
-import com.codc.cats.data.workers.CleanupWorker
+
+enum class ImageFilter { BLUR, GRAYSCALE }
 
 @Composable
-fun OptionsList(imageUrl: String, hideBottomSheet: () -> Unit) {
+fun OptionsList(
+    imageUrl: String,
+    hideBottomSheet: () -> Unit,
+    applyImageFilter: (ImageFilter) -> Unit
+) {
     val context = LocalContext.current
 
     LazyColumn {
 
-        // Share image
+        // Share
         item {
             Row(
                 modifier = Modifier
@@ -51,26 +52,37 @@ fun OptionsList(imageUrl: String, hideBottomSheet: () -> Unit) {
             }
         }
 
-        // Blur image (using Jetpack WorkManager)
+        // Black and white (grayscale)
         item {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 20.dp, bottom = 10.dp)
                     .clickable {
-                        // TODO: Blur image. Use a ViewModel to kick this off. The ViewModel should
-                        //  hand the work off to a work manager which should blur the image. Once
-                        //  the blurred image is available in the ViewModel, a pop-up view should
-                        //  appear showing the image.
-                        val workManager = WorkManager.getInstance(context)
-                        val continuation = workManager
-                            .beginUniqueWork(
-                                IMAGE_MANIPULATION_WORK_NAME,
-                                ExistingWorkPolicy.REPLACE,
-                                OneTimeWorkRequest.from(CleanupWorker::class.java)
-                            )
-                        continuation.enqueue()
+                        applyImageFilter(ImageFilter.GRAYSCALE)
+                        hideBottomSheet()
+                    },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .padding(10.dp),
+                    painter = painterResource(id = R.drawable.ic_grayscale),
+                    contentDescription = stringResource(id = R.string.black_and_white_icon)
+                )
+                Text(text = stringResource(id = R.string.black_and_white))
+            }
+        }
 
+        // Blur
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, bottom = 10.dp)
+                    .clickable {
+                        applyImageFilter(ImageFilter.BLUR)
                         hideBottomSheet()
                     },
                 verticalAlignment = Alignment.CenterVertically

@@ -6,6 +6,8 @@
     <string name="open_context_menu">Open context menu</string>
     <string name="share">Share</string>
     <string name="share_icon">Share icon</string>
+    <string name="black_and_white">Black &amp; white</string>
+    <string name="black_and_white_icon">Black &amp; white icon</string>
     <string name="blur">Blur</string>
     <string name="blur_icon">Blur icon</string>
 </resources>
