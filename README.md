@@ -13,8 +13,8 @@ Used in this project:
 
 ## Screenshots:
 
-<img src="https://i.ibb.co/jH5SYZG/cats-screenshot-1.jpg" width="300">
+<img src="https://i.imgur.com/4bPTCLQ.jpeg" width="300">
 
-<img src="https://i.ibb.co/d4fcrvd/cats-screenshot-2.jpg" width="300">
+<img src="https://i.imgur.com/yN2M9i0.jpg" width="300">
 
-<img src="https://i.ibb.co/NZWR011/cats-screenshot-3.jpg" width="300">
+<img src="https://i.imgur.com/vnXkGZ3.jpg" width="300">
